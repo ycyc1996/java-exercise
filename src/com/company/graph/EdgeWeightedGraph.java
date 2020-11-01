@@ -3,12 +3,12 @@ package com.company.graph;
 import java.util.ArrayList;
 
 public class EdgeWeightedGraph {
-    private final int v;
+    private final int V;
     private int E;
-    private ArrayList[] Bags;
+    private ArrayList<Edge>[] Bags;
 
     public EdgeWeightedGraph(int v) {
-        this.v = v;
+        this.V = v;
         this.E = 0;
 
         this.Bags = new ArrayList[v];
@@ -19,9 +19,27 @@ public class EdgeWeightedGraph {
 
     }
 
-    public int getV() { return this.v; }
+    public int getV() { return this.V; }
 
     public int getE() { return this.E; }
+
+
+    public Edge[] getEdges() {
+
+        ArrayList<Edge> edges = new ArrayList<>();
+
+        for (ArrayList<Edge> bag: Bags) {
+            for (Edge edge: bag) {
+
+                if (!edges.contains(edge)) {
+                    edges.add(edge);
+                }
+            }
+        }
+
+
+        return edges.toArray(new Edge[edges.size()]);
+    }
 
     public void addEdge(Edge e) {
         int v = e.either();
@@ -30,16 +48,15 @@ public class EdgeWeightedGraph {
         this.Bags[w].add(e);
     }
 
-
     public Edge[] minTree() {
-        Edge[] treeEdges = new Edge[this.v - 1];
+        Edge[] treeEdges = new Edge[this.V - 1];
 
-        Edge[] curEdges = new Edge[this.v];
+        Edge[] curEdges = new Edge[this.V];
 
-        if (this.v == 0) return treeEdges;
+        if (this.V == 0) return treeEdges;
 
 
-        Boolean[] inTree = new Boolean[this.v];
+        Boolean[] inTree = new Boolean[this.V];
         for (int i = 0; i < inTree.length; i++) {
             inTree[i] = false;
         }
@@ -79,5 +96,56 @@ public class EdgeWeightedGraph {
 
         return treeEdges;
     }
+
+    public double[] bellmanShortestPath() throws RuntimeException{
+
+        int v = this.getV();
+        Edge[] edges = getEdges();
+        double[] stortestPaths = new double[v];
+
+        for(int i = 1;i < v;i++) {
+            stortestPaths[i] = Integer.MAX_VALUE;  //初始化第0个顶点到其它顶点之间的距离为无穷大，此处用Integer型最大值表示
+        }
+
+        for (int i = 1; i < v; i++) {
+            for (int j = 0; j < edges.length; j++) {
+                Edge e = edges[j];
+                int either = e.either();
+                int other = e.other(either);
+                if (stortestPaths[other] > stortestPaths[either] + e.getWeight()) {
+                    stortestPaths[other] = (stortestPaths[either] + e.getWeight());
+                }
+            }
+        }
+
+        for (int j = 0; j < edges.length; j++) {
+            Edge e = edges[j];
+            int either = e.either();
+            int other = e.other(either);
+            if (stortestPaths[other] > stortestPaths[either] + e.getWeight()) {
+                throw new RuntimeException("存在负权值的边");
+            }
+        }
+        return stortestPaths;
+    }
+
+
+    public double[] DijkstraShortestPath() throws RuntimeException { return  DijkstraShortestPath(0); }
+
+    public double[] DijkstraShortestPath(int index) throws RuntimeException {
+        int v = this.getV();
+        Edge[] edges = getEdges();
+        double[] stortestPaths = new double[v];
+        boolean[] st = new boolean[v];
+
+        for (int i = 0; i < v; i++) {
+            stortestPaths[i] = i == index ? 0 : Integer.MAX_VALUE;
+        }
+
+
+        return stortestPaths;
+    }
+
+
 
 }
