@@ -87,6 +87,86 @@ public class test {
 
         }
     }
+
+    private static class EdgeWeightedDiGraphTestCase {
+        EdgeWeightedDigraph graph;
+        int v;
+        int w;
+
+
+        public EdgeWeightedDigraph getGraph() {
+            return graph;
+        }
+
+        public int getV() {
+            return v;
+        }
+
+        public int getW() {
+            return w;
+        }
+
+        public EdgeWeightedDiGraphTestCase(EdgeWeightedDigraph graph, int v , int w) {
+            this.graph = graph;
+            this.v = v;
+            this.w = w;
+        }
+
+        public EdgeWeightedDiGraphTestCase(String path) {
+            File file = new File(path);
+            BufferedReader reader = null;
+            String tempString = null;
+
+
+            int v = 0, w = 0, line = 1;
+            EdgeWeightedDigraph G = null;
+            Exception err = null;
+            try {
+                System.out.println("开始读取：");
+                reader = new BufferedReader(new FileReader(file));
+                while ((tempString = reader.readLine()) != null) {
+                    tempString = tempString.trim();
+                    if (line == 1) {
+                        v = Integer.parseInt(tempString);
+                        System.out.println("读取到顶点数: " + v);
+                    } else if (line == 2) {
+                        w = Integer.parseInt(tempString);
+                        System.out.println("读取到边数: " + w);
+                    }
+                    else {
+                        if (G == null) {
+                            G = new EdgeWeightedDigraph(v);
+                            System.out.println("创建图， 有" + G.getV() + "个顶点");
+                        }
+                        String[] arr = tempString.split("\\s");
+                        if (arr.length >= 3) {
+                            int edgeV = Integer.parseInt(arr[0]), edgeW = Integer.parseInt(arr[1]);
+                            double edgeWeight = Double.parseDouble(arr[2]);
+                            DirectedEdge e =  new DirectedEdge(edgeV, edgeW, edgeWeight);
+                            System.out.println(e);
+                            G.addEdge(e);
+                        }
+                    }
+
+                    line += 1;
+                }
+                reader.close();
+            } catch (IOException e) {
+                System.out.println(e);
+            }
+
+            if (err != null) {
+                System.out.println(err.toString());
+            } else {
+                System.out.println(String.format("读取成功， %d个顶点， %d条边", v, w));
+                this.graph = G;
+                this.v = v;
+                this.w = w;
+            }
+
+        }
+    }
+
     public static void minTreeTest() {
 
         System.out.println("run minTree test");
@@ -127,17 +207,40 @@ public class test {
 
 
     }
+
+
+    public static void directedEdgeTest() {
+
+        EdgeWeightedDiGraphTestCase GCase = new EdgeWeightedDiGraphTestCase("src/com/company/graph/dijkstra.txt");
+
+
+
+
+        double[] shortest = GCase.getGraph().shortest(0);
+
+        System.out.print("最短路径结构: ");
+
+        for (double x: shortest) {
+            System.out.print(" " + x + " ");
+        }
+        System.out.print("\n");
+
+    }
     public static void main(String[] args) {
 
         boolean runMinTreeTest = false;
-        boolean runBellmanTest = true;
-
+        boolean runBellmanTest = false;
+        boolean runDirectedEdgeTest = true;
         if (runMinTreeTest) {
             minTreeTest();
         }
 
         if (runBellmanTest) {
             bellmanTest();
+        }
+
+        if (runDirectedEdgeTest) {
+            directedEdgeTest();
         }
     }
 }
